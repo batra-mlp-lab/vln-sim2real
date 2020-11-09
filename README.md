@@ -5,6 +5,8 @@ Code for sim-to-real transfer of a pretrained [Vision-and-Language Navigation (V
 
 ![Concept](teaser.png)
 
+This repo contains code for running the robot. For code and utilities for digitizing and annotating a physical environment to create a parallel VLN simulator environment, see [vln-sim2real-envs](https://github.com/batra-mlp-lab/vln-sim2real-envs).
+
 ## Reference
 
 A full description of this codebase and associated sim-to-real experiments and data can be found in the paper: [Sim-to-Real Transfer for Vision-and-Language Navigation](). If you use this code in your research, please cite our paper:
