@@ -16,7 +16,7 @@ A full description of this codebase and associated sim-to-real experiments and d
 @inproceedings{vln-pano2real,
   title={Sim-to-Real Transfer for Vision-and-Language Navigation},
   author={Peter Anderson and Ayush Shrivastava and Joanne Truong and Arjun Majumdar and Devi Parikh and Dhruv Batra and Stefan Lee},
-  booktitle={CoRL},
+  booktitle={Conference on Robot Learning (CoRL)},
   year={2020}
 }
 ```
