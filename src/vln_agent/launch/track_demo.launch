@@ -1,0 +1,31 @@
+<!-- 
+
+This launch file is for a demo of tracking the robot's pose in a provided map.
+It will launch the scanner and let you teleop around.
+
+Launch the teleop separately, e.g.:
+$ roslaunch turtlebot_teleop keyboard_teleop.launch
+
+
+Launch rviz to see what's going on, e.g.:
+$ roslaunch turtlebot_rviz_launchers view_navigation.launch
+
+-->
+
+<launch>
+
+  <!-- Robot -->
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch"/>
+
+  <!-- scanner -->
+  <include file="$(find vln_agent)/launch/hokuyo.launch">
+     <arg name="laser_topic" value="/scan" />
+  </include>
+
+  <!-- tracking -->
+  <include file="$(find vln_agent)/launch/track.launch"/>
+
+  <!-- Move base -->
+  <include file="$(find turtlebot_navigation)/launch/includes/move_base.launch.xml"/>
+
+</launch>

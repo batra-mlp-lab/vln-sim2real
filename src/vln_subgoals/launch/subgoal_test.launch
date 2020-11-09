@@ -1,0 +1,46 @@
+<!-- 
+
+This launch file checks predictions from the subgoal model given a known image and
+laser scan as input. 
+
+After the nodes are launched and running, use the following commands to set the viewpoint
+input and then inspect the subgoal predictions in rviz.
+
+rostopic pub /mock/hint vln_evaluation/LocationHint 'viewpoint: "24df7bedfc814d7e9bd610171c862f7a"'
+rostopic pub /mock/hint vln_evaluation/LocationHint 'viewpoint: "1144d00a8ebd417f8a0de419ea12c1e5"'
+rostopic pub /mock/hint vln_evaluation/LocationHint 'viewpoint: "2754c89e3b2645d598ace5d7878f5d13"'
+
+-->
+
+<launch>
+
+  <param name="mock_scans_path" value="$(find vln_subgoals)/yZVvKaJZghh_theta/laser_scans.json"/>
+  <param name="pano_images_dir" value="$(find vln_subgoals)/yZVvKaJZghh_theta/matterport_skybox_images/"/>
+
+  <!-- Inputs to rotate server. -->
+  <param name="theta_topic" value='theta/image/decompressed'/>
+  <param name="scan_topic" value='scan'/>
+
+  <!-- Required transforms for rotate server and subgoal server. -->
+  <node pkg="tf" type="static_transform_publisher" name="base_to_map_broadcaster" args="0 0 0 0 0 0 /map /base_footprint 100" />
+  <node pkg="tf" type="static_transform_publisher" name="base_to_laser_broadcaster" args="0 0 0 0 0 0 /map /hokuyo_laser_frame 100" />
+
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find vln_subgoals)/rviz/subgoal_test.rviz"/>
+
+  <!-- Mock the camera with images from the sim. This produces /theta/image/rotated so rotate_server not needed -->
+  <node name="theta" pkg="theta" type="theta_mock_server.py" output="screen" />
+
+  <!-- Mock the scanner with scans from the sim. -->
+  <node name="mock_laser" pkg="vln_subgoals" type="mock_laser.py" output="screen" />
+    
+  <!-- Launch the subgoal server -->
+  <include file="$(find vln_subgoals)/launch/subgoal.launch" />
+
+  <!-- Launch the subgoal test to trigger the camera and set the viewpoint -->
+  <node name="subgoal_coda_test" pkg="vln_subgoals" type="subgoal_coda_test.py" output="screen" />
+
+  <!-- Record predictions -->
+  <node pkg="rosbag" type="record" name="rosbag_record_subgoals"
+       args="record -o $(find vln_subgoals)/bags/vln-sim2real-subgoal /mock/hint /subgoal/waypoints"/>
+
+</launch>

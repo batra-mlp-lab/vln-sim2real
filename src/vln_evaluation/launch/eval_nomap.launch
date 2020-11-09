@@ -1,0 +1,59 @@
+<!-- 
+
+This launch file is for the evaluation in the 'no map' setting. 
+This must be launched with it's own ros master! In a separate ros master,
+launch robot_nomap.launch on the robot and agent_nomap.launch
+on a PC or on the robot. 
+
+-->
+
+<launch>
+
+  <arg name="record_data" default="false" />
+
+  <!-- Navigation graph for with map experiments -->
+  <param name="connectivity_file" value="$(find vln_evaluation)/data/yZVvKaJZghh_connectivity.json"/>
+
+  <!-- File for keeping track of which instructions have already been evaluated (and which should be skipped) -->
+  <param name="instruction_params_file" value="$(find vln_evaluation)/param/instruction_params.yaml"/>
+
+  <!-- Instructions for evaluation (in R2R dataset format) -->
+  <param name="instruction_dataset_file" value="$(find vln_evaluation)/data/R2R_coda.json"/>
+
+  <!-- Instructions and trajectories (in R2R dataset format) for comparison to the robot.
+  Useful for comparing results between the simulator and the robot in real time -->
+  <param name="comparison_results_file" value="$(find vln_evaluation)/data/submit_coda.json"/>
+
+  <param name="has_map" value="False"/>
+
+  <!-- launch the evaluator to send instructions to the agent-->
+  <node name="evaluation" pkg="vln_evaluation" type="evaluation.py" output="screen"/>
+
+  <!-- tracking: includes map server and amcl -->
+  <include file="$(find vln_agent)/launch/track.launch">
+    <arg name="map_file" value="$(find vln_agent)/maps/coda.yaml"/>
+  </include>
+
+  <!-- Move base -->
+  <include file="$(find vln_agent)/launch/includes/move_base_multimaster.launch.xml"/>
+
+  <!-- Discover nodes in another roscore -->
+  <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery" output="screen"/>
+
+  <!-- Sync to another roscore -->
+  <node name="master_sync" pkg="master_sync_fkie" type="master_sync" output="screen">
+    <!-- Add selective topics to sync for tracking purposes -->
+    <rosparam param="sync_topics">[/scan, /fakescan, /odom, /tf_gt, /tf_static, /mobile_base/sensors/bumper_pointcloud, /agent_relay/result]</rosparam>
+    <!-- Add selective services to sync -->
+    <rosparam param="sync_services">[/nav_launcher/restart, /agent_relay/instruct, /agent_relay/instruct/cancel]</rosparam>
+  </node>
+
+  <!-- Republish tf_gt as tf -->
+  <node name="tf_relay" type="relay" pkg="topic_tools" args="/tf_gt /tf" />
+
+  <!-- Recording trajectories -->
+  <node pkg="rosbag" type="record" name="rosbag_record_vln"
+       args="record -o /tmp/vln-sim2real-nomap /rosout /amcl_pose /agent_relay/result"
+       if="$(arg record_data)" />
+
+</launch>

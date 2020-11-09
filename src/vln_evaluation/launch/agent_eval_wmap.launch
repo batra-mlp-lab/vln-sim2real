@@ -1,0 +1,12 @@
+<!-- 
+
+Convenience launch file to start both the agent and the eval in the with-map setting.
+
+-->
+
+<launch>
+
+  <include file="$(find vln_evaluation)/launch/eval_wmap.launch"/>
+  <include file="$(find vln_agent)/launch/agent_wmap.launch"/>
+
+</launch>

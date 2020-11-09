@@ -1,0 +1,17 @@
+<!-- 
+
+This launch file is for restarting the navigation stack each episode
+on the hardest experimental setting.
+
+-->
+
+<launch>
+
+  <!-- Include Gmapping for move base to use-->
+  <include file="$(find vln_agent)/launch/includes/gmapping.launch.xml"/>
+
+  <!-- Move base basic - does not include the velocity smoother and safety controller
+       as they do not need to be restarted each episode -->
+  <include file="$(find vln_agent)/launch/includes/move_base_basic.launch.xml"/>
+
+</launch>

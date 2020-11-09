@@ -1,0 +1,18 @@
+<!-- 
+
+This launch file is for the PC in the 'no map' setting. 
+This must be launched on the second ros master! This will open rviz
+to show the true robot location and also record ros bags.
+
+-->
+
+<launch>
+
+  <arg name="record_data" default="false" />
+
+  <!-- Recording trajectories -->
+  <node pkg="rosbag" type="record" name="rosbag_pc_record_vln"
+       args="record -o /tmp/vln-sim2real-nomap-pc /rosout /amcl_pose /agent_relay/result"
+       if="$(arg record_data)" />
+
+</launch>

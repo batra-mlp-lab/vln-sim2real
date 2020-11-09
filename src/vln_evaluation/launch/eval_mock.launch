@@ -1,0 +1,39 @@
+<!-- 
+
+This launch file with test the robot in the coda Matterport environment, i.e. 
+to test the ROS implementation. 
+
+-->
+
+<launch>
+
+  <param name="cnn_weights_file" value="$(find vln_subgoals)/models/pytorch_ResNet.pth"/>
+  <param name="cnn_arch_file" value="$(find vln_subgoals)/models/pytorch_ResNet.py" />
+  <param name="cnn_batch_size" value="2" /> <!-- Don't run out of gpu memory! -->
+  <param name="cnn_feature_dim" value="2048"/>
+  <param name="device" value="cuda:0" />
+  <param name="publish_views" value="False" /> <!-- Can be quite a bit of overhead -->
+  <param name="agent_weights_file" value="$(find vln_agent)/models/best_val_unseen.pth"/>
+  <param name="vocab_file" value="$(find vln_agent)/models/train_vocab.txt"/>
+  <param name="connectivity_file" value="$(find vln_evaluation)/data/yZVvKaJZghh_connectivity.json"/>
+  <param name="pano_images_dir" value="$(find vln_evaluation)/data/images/theta"/> <!-- Used only in the mock setting -->
+  <param name="instruction_dataset_file" value="$(find vln_evaluation)/data/R2R_coda.json"/>
+  <param name="results_output_file" value="$(find vln_evaluation)/data/coda_theta_results.json"/> <!-- Output results in the mock setting -->
+  <param name="scores_output_file" value="$(find vln_evaluation)/data/coda_theta_scores.json"/> <!-- Output scores in the mock setting -->
+  <param name="comparison_results_file" value="$(find vln_evaluation)/data/submit_coda.json"/>
+  <param name="vln_simulation" value="True"/> <!-- Tell's subgoal mock server not to look for /tf -->
+
+  <!-- Mock the camera with images from the sim. This produces /theta/image/rotated so rotate_server not needed -->
+  <node name="theta" pkg="theta" type="theta_mock_server.py" output="screen" />
+
+  <!-- Mock the subgoal model using the sim navigation graph  -->
+  <node name="subgoal_mock_server" pkg="vln_subgoals" type="subgoal_mock_server.py" output="screen"/>
+
+  <!-- launch for the VLN agent model -->
+  <node name="agent" pkg="vln_agent" type="agent_server.py" output="screen"/>
+
+  <!-- launch the evaluator to send instructions to the agent-->
+  <node name="evaluation" pkg="vln_evaluation" type="mock_evaluation.py" output="screen"/>
+
+
+</launch>

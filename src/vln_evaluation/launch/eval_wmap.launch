@@ -1,0 +1,27 @@
+<!-- 
+
+This launch file is for the evaluation in the 'with map' setting. 
+Launch this along with robot_wmap.launch on the robot and agent_wmap.launch
+on a PC or on the robot. 
+
+-->
+
+<launch>
+
+  <!-- Navigation graph for with map experiments -->
+  <param name="connectivity_file" value="$(find vln_evaluation)/data/yZVvKaJZghh_connectivity.json"/>
+
+  <!-- File for keeping track of which instructions have already been evaluated (and which should be skipped) -->
+  <param name="instruction_params_file" value="$(find vln_evaluation)/param/instruction_params.yaml"/>
+
+  <!-- Instructions for evaluation (in R2R dataset format) -->
+  <param name="instruction_dataset_file" value="$(find vln_evaluation)/data/R2R_coda.json"/>
+
+  <!-- Instructions and trajectories (in R2R dataset format) for comparison to the robot.
+  Useful for comparing results between the simulator and the robot in real time -->
+  <param name="comparison_results_file" value="$(find vln_evaluation)/data/submit_coda.json"/>
+
+  <!-- launch the evaluator to send instructions to the agent -->
+  <node name="evaluation" pkg="vln_evaluation" type="evaluation.py" output="screen"/>
+
+</launch>

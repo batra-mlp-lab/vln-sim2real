@@ -1,0 +1,41 @@
+<!-- 
+
+This launch file shows how to start a Hokuyo UTM-30LX-EW node. 
+
+You may have to change the port parameter if your laser is not at
+/dev/ttyACM0.
+
+You may have to change the ip_address if your laser is not using 
+the default.
+
+-->
+
+<launch>
+  <arg name="frame_id"   default="hokuyo_laser_frame"/>
+  <arg name="laser_topic" default="/scan" />
+  <arg name="ip_address" default="192.168.0.10" />
+
+  <!-- Hokuyo laser scanner  -->
+  <node name="urg_node" pkg="urg_node" type="urg_node" output="screen">
+    <param name="ip_address" value="$(arg ip_address)"/>
+    <param name="serial_port" value="/dev/ttyACM0"/>
+    <param name="serial_baud" value="115200"/>
+    <param name="frame_id" value="$(arg frame_id)"/>
+    <param name="calibrate_time" value="true"/>
+    <param name="publish_intensity" value="false"/>
+    <param name="publish_multiecho" value="false"/>
+    <param name="angle_min" value="-2.35619"/>
+    <param name="angle_max" value="2.35619"/>
+
+    <remap from="scan" to="raw_$(arg laser_topic)"/>
+  </node>
+
+  <!-- Filter out contacts caused by the 4 supports for the turtlebot platforms above.
+       This may not be needed depending how the scanner is mounted.  -->
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" name="laser_filter">
+    <rosparam command="load" file="$(find vln_agent)/param/laser_config.yaml" />
+    <remap from="scan" to="raw_$(arg laser_topic)" />
+    <remap from="scan_filtered" to="$(arg laser_topic)" />
+  </node>
+
+</launch>

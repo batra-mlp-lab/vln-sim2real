@@ -1,0 +1,50 @@
+<!-- 
+
+This launch file is for the robot nodes in the 'no map' setting.
+Launch agent_nomap.launch on the robot or PC to run the required PyTorch nodes.
+
+-->
+
+<launch>
+
+  <arg name="map_file" value="$(find vln_agent)/maps/coda.yaml"/>
+
+  <!-- Robot -->
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch"/>
+
+  <!-- Theta V pano camera -->
+  <include file="$(find theta)/launch/theta.launch"/>
+
+  <!-- 3D sensor -->
+  <include file="$(find vln_agent)/launch/sensor.launch"/>
+
+  <!-- scanner -->
+  <include file="$(find vln_agent)/launch/hokuyo.launch"/>
+
+  <!-- Move base -->
+  <include file="$(find vln_agent)/launch/includes/move_base.launch.xml"/>
+
+  <!-- Include Gmapping for move base to use-->
+  <include file="$(find vln_agent)/launch/includes/gmapping.launch.xml"/>
+
+  <!-- special node to re-launch the nav stack (gmapping and move_base) each new episode,
+       for the strictest possible unseen-environment evaluation  -->
+  <node name="nav_launcher" pkg="vln_agent" type="nav_launcher.py" output="screen"/>
+
+  <!-- special node to get around multimaster issues on the remote PC  -->
+  <node name="agent_relay" pkg="vln_agent" type="agent_relay.py" output="screen"/>
+
+  <!-- special node to get around tf multiple authority contention when running two nav stacks  -->
+  <node name="tf_filter" pkg="vln_evaluation" type="tf_filter.py" output="screen"/>
+
+  <!-- Discover nodes in another roscore -->
+  <node name="master_discovery" pkg="master_discovery_fkie" type="master_discovery" output="screen"/>
+  <!-- Sync to another roscore -->
+  <node name="master_sync" pkg="master_sync_fkie" type="master_sync" output="screen">
+    <!-- Add selective topics to sync - -->
+    <rosparam param="sync_topics">[/navigation_velocity_smoother/raw_cmd_vel]</rosparam>
+    <!-- Add selective services to sync -->
+    <rosparam param="sync_services">[/nav_launcher/restart, /agent_relay/instruct, /agent_relay/instruct/cancel]</rosparam>
+  </node>
+
+</launch>

@@ -1,0 +1,41 @@
+<!-- 
+
+This launch file is for the PyTorch nodes in the 'with map' setting. Can run on the
+robot or a PC. Launch this along with robot_wmap.launch on the robot.
+Send instructions to /agent/instruct or launch eval_wmap.launch for a full evaluation.
+
+-->
+
+<launch>
+
+  <arg name="record_data" default="false" />
+
+  <param name="cnn_weights_file" value="$(find vln_subgoals)/models/pytorch_ResNet.pth"/>
+  <param name="cnn_arch_file" value="$(find vln_subgoals)/models/pytorch_ResNet.py" />
+  <param name="cnn_batch_size" value="2" /> <!-- Don't run out of gpu memory! -->
+  <param name="cnn_feature_dim" value="2048"/>
+  <param name="device" value="cuda:0" />
+  <param name="publish_views" value="False" /> <!-- Can be quite a bit of overhead -->
+  <param name="agent_weights_file" value="$(find vln_agent)/models/best_val_unseen.pth"/>
+  <param name="vocab_file" value="$(find vln_agent)/models/train_vocab.txt"/>
+
+  <!-- Make sure this is the right navigation graph connectivity file for the space -->
+  <param name="connectivity_file" value="$(find vln_evaluation)/data/yZVvKaJZghh_connectivity.json"/>
+
+  <!-- For python, we must do image transport compression via republish. Reduces overhead of sending large
+       pano images over wifi (assuming this launch file is run on a PC)  -->
+  <node name="decompress_theta" pkg="image_transport" type="republish" args="compressed in:=/theta/image/ raw out:=/theta/image/decompressed" output="screen"/>
+  <node name="rotate_server" pkg="vln_subgoals" type="rotate_server.py"  output="screen" />
+
+  <!-- Mock the subgoal model using the sim navigation graph  -->
+  <node name="subgoal_mock_server" pkg="vln_subgoals" type="subgoal_mock_server.py" output="screen"/>
+
+  <!-- launch for the VLN agent model -->
+  <node name="agent" pkg="vln_agent" type="agent_server.py" output="screen"/>
+
+  <!-- Also recording trajectories -->
+  <node pkg="rosbag" type="record" name="rosbag_pc_record_vln"
+       args="record -o /tmp/vln-sim2real-pc /rosout /amcl_pose /agent/result"
+       if="$(arg record_data)" />
+
+</launch>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+  The common turtlebot library of xacros for easy reference
+ -->
+<robot xmlns:xacro="http://ros.org/wiki/xacro">
+  <!-- General -->
+  <xacro:include filename="$(find turtlebot_description)/urdf/common_properties.urdf.xacro"/>
+  <xacro:include filename="$(find turtlebot_description)/urdf/turtlebot_properties.urdf.xacro"/>
+  <joint name="laser" type="fixed">
+    <origin xyz="0.02 0.0 0.240" rpy="0.0 0 0" />
+    <parent link="base_link" />
+    <child link="hokuyo_laser_frame" />
+  </joint>
+
+  <link name="hokuyo_laser_frame">
+    <visual>
+      <geometry>
+        <box size="0.00 0.05 0.06" />
+      </geometry>
+      <material name="Green" />
+    </visual>
+    <inertial>
+      <mass value="0.000001" />
+      <origin xyz="0 0 0" />
+      <inertia ixx="0.0001" ixy="0.0" ixz="0.0"
+        iyy="0.0001" iyz="0.0"
+        izz="0.0001" />
+    </inertial>
+  </link>
+</robot>

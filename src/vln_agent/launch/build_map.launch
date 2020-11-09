@@ -1,0 +1,36 @@
+<!-- 
+
+This launch file is for building a map of the environment, e.g. 
+to track the position of the robot in later evaluation runs.
+
+Launch the teleop separately, e.g.:
+$ roslaunch turtlebot_teleop keyboard_teleop.launch
+
+Launch rviz to see what's going on, e.g.:
+$ roslaunch turtlebot_rviz_launchers view_navigation.launch
+
+Do not shutdown this process until you have saved the map, .e.g:
+$ rosrun map_server map_saver -f /tmp/my_map
+
+-->
+
+
+<launch>
+  <!-- Robot -->
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch"/>
+
+  <!-- 3D sensor (for remote driving) -->
+  <include file="$(find vln_agent)/launch/sensor.launch"/>
+
+  <!-- scanner -->
+  <include file="$(find vln_agent)/launch/hokuyo.launch">
+     <arg name="laser_topic" value="/scan" />
+  </include>
+
+  <!-- Gmapping -->
+  <include file="$(find vln_evaluation)/launch/includes/gmapping.launch.xml"/>
+
+  <!-- Move base -->
+  <include file="$(find turtlebot_navigation)/launch/includes/move_base.launch.xml"/>
+
+</launch>

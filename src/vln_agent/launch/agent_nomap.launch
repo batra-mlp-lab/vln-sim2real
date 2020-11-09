@@ -1,0 +1,42 @@
+<!-- 
+
+This launch file is for the PyTorch nodes in the 'no map' setting. Can run on the
+robot or a PC. Launch this along with robot_nomap.launch on the robot.
+Send instructions to /agent/instruct or launch eval_nomap.launch for a full evaluation.
+
+-->
+
+<launch>
+
+  <param name="cnn_weights_file" value="$(find vln_subgoals)/models/pytorch_ResNet.pth"/>
+  <param name="cnn_arch_file" value="$(find vln_subgoals)/models/pytorch_ResNet.py" />
+  <param name="cnn_batch_size" value="2" /> <!-- Don't run out of gpu memory! -->
+  <param name="cnn_feature_dim" value="2048"/>
+  <param name="device" value="cuda:0" />
+  <param name="publish_views" value="False" /> <!-- Can be quite a bit of overhead -->
+  <param name="agent_weights_file" value="$(find vln_agent)/models/best_val_unseen.pth"/>
+  <param name="vocab_file" value="$(find vln_agent)/models/train_vocab.txt"/>
+
+  <param name="unet_weights_file" value="$(find vln_subgoals)/models/BEST_CP_epoch18.pth"/>
+  <param name="max_subgoal_predictions" value="10"/>
+  <param name="heading_bins" value="48" /> <!-- Matches training resolution -->
+  <param name="range_bins" value="24" /> <!-- Matches training resolution -->
+  <param name="range_bin_width" value="0.2" /> 
+  <param name="subgoal_nms_sigma" value="3.0" /> <!-- This value suits the resolution ok -->
+  <param name="subgoal_nms_thresh" value="0.010" /> <!-- NEED TO TUNE THIS 0.020-->
+  <param name="subgoal_publish_occupancy" value="True" /> 
+  <param name="subgoal_publish_prob" value="True" /> 
+  <param name="subgoal_publish_nms_prob" value="True" /> 
+
+  <!-- For python, we must do image transport compression via republish. Reduces overhead of sending large
+       pano images over wifi (assuming this launch file is run on a PC)  -->
+  <node name="decompress_theta" pkg="image_transport" type="republish" args="compressed in:=/theta/image/ raw out:=/theta/image/decompressed" output="screen"/>
+  <node name="rotate_server" pkg="vln_subgoals" type="rotate_server.py"  output="screen" />
+
+  <!-- Subgoal model with no map at all  -->
+  <node name="subgoal_server" pkg="vln_subgoals" type="subgoal_server.py" output="screen"/>
+
+  <!-- launch for the VLN agent model -->
+  <node name="agent" pkg="vln_agent" type="agent_server.py" output="screen"/>
+
+</launch>

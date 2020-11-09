@@ -1,0 +1,22 @@
+<!-- 
+
+This starts the turtlebot RGB-D sensor.
+
+-->
+
+<launch>
+  <!-- 3D sensor -->
+  <arg name="camera"      default="camera"/>
+  <arg name="3d_sensor" default="$(env TURTLEBOT_3D_SENSOR)"/>  <!-- r200, kinect, asus_xtion_pro -->
+  <include file="$(find turtlebot_bringup)/launch/3dsensor.launch">
+
+    <!-- We must specify an absolute topic name because if not it will be prefixed by "$(arg camera)".
+         Probably is a bug in the nodelet manager: https://github.com/ros/nodelet_core/issues/7 --> 
+    <arg name="scan_topic" value="/fakescan" />
+
+  </include>
+
+</launch>
+
+
+

@@ -1,0 +1,6 @@
+<launch>
+  <!-- For python, we must do image transport compression via republish. Reduces overhead of sending large
+       pano images over wifi (assuming this images are processed off-board)  -->
+  <node name="theta" pkg="theta" type="theta_server.py" output="screen" />
+  <node name="republish_theta" type="republish" pkg="image_transport" args="raw in:=/theta/image compressed out:=/theta/image" />
+</launch>

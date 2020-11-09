@@ -1,0 +1,38 @@
+<!-- 
+
+This launch file is for the robot nodes in the 'with map' setting.
+Launch agent_wmap.launch on the robot or PC to run the required PyTorch nodes.
+
+-->
+
+<launch>
+
+  <arg name="record_data" default="false" />
+  <arg name="map_file" value="$(find vln_agent)/maps/coda.yaml"/>
+
+  <!-- Robot -->
+  <include file="$(find turtlebot_bringup)/launch/minimal.launch"/>
+
+  <!-- Theta V pano camera -->
+  <include file="$(find theta)/launch/theta.launch"/>
+
+  <!-- 3D sensor -->
+  <include file="$(find vln_agent)/launch/sensor.launch"/>
+
+  <!-- scanner -->
+  <include file="$(find vln_agent)/launch/hokuyo.launch"/>
+
+  <!-- tracking: includes map server and amcl -->
+  <include file="$(find vln_agent)/launch/track.launch">
+    <arg name="map_file" value="$(arg map_file)"/>
+  </include>
+
+  <!-- Move base -->
+  <include file="$(find vln_agent)/launch/includes/move_base.launch.xml"/>
+
+  <!-- Recording trajectories -->
+  <node pkg="rosbag" type="record" name="rosbag_record_vln"
+       args="record -o /tmp/vln-sim2real /rosout /amcl_pose /agent/result"
+       if="$(arg record_data)" />
+
+</launch>
