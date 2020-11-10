@@ -208,4 +208,8 @@ As with the with-map setting, the robot will now complete the evaluation of 111 
 
 As in the with map setting, the script `src/vln_evaluation/viz_paths.py` can be used to process the bag files and generate evaluation metrics. 
 
+## License
 
+The Matterport3D dataset is governed by the
+[Matterport3D Terms of Use](http://kaldir.vc.in.tum.de/matterport/MP_TOS.pdf).
+This code is released under the BSD 3-Clause license.
